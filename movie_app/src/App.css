@@ -1,0 +1,19 @@
+.App > div:not(.sideBar){
+  padding:50px 20px;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+.App .form-group{
+  width: 100%;
+}
+.sideBar{
+  padding:50px 20px;
+}
+.App--loading > div{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}

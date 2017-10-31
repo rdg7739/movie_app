@@ -4,8 +4,9 @@
   "description": "",
   "main": "bundle.js",
   "scripts": {
-      "build": "./node_modules/webpack/bin/webpack.js -p",
-      "start": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --hot --progress --colors --inline"
+    "dev": "./node_modules/webpack/bin/webpack.js -d --watch",
+    "build": "./node_modules/webpack/bin/webpack.js -p",
+    "start": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js --hot --progress --colors --inline"
   },
   "repository": {
     "type": "git",
@@ -19,9 +20,12 @@
     "node-sass": "^4.5.3",
     "react-hot-loader": "^3.0.0",
     "sass-loader": "^6.0.6",
-    "scss-loader": "0.0.1",
     "style-loader": "^0.19.0",
     "webpack": "^3.7.1",
     "webpack-dev-server": "^2.9.1"
+  },
+  "dependencies": {
+    "postcss": "^6.0.13",
+    "postcss-loader": "^2.0.8"
   }
 }
