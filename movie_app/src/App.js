@@ -6,6 +6,7 @@ import PageBtns from './PageBtns';
 import { Col} from "react-bootstrap";
 class App extends Component {
   apiUrl= "https://yts.ag/api/v2/list_movies.json";
+  apiError= false;
   
   constructor(props){
     super(props);
@@ -16,12 +17,11 @@ class App extends Component {
       sortType: "download_count",
       limit: 20,
       orderBy: "asc",
-      quality: "720p",
+      quality: "",
       minRate: "0",
       search: "",
       genre: "",
-      RtRate: "",
-      apiError: false
+      RtRate: "false"
     };
     this._onChangeCurrPage = this._onChangeCurrPage.bind(this);
     this._onChangeSortType = this._onChangeSortType.bind(this);
@@ -39,7 +39,7 @@ class App extends Component {
     this._getMovies();
     
   }
-  componentDidUpdate(){
+  componentDidUpdate(prevProps, prevState){
     // console.log('the totalMovies: '+ this.state.totalMovies+
     // ' | the currPage: '+ this.state.currPage+
     // ' | the sortType: '+ this.state.sortType+
@@ -50,17 +50,29 @@ class App extends Component {
     // ' | the search: '+ this.state.search+
     // ' | the genre: '+ this.state.genre+
     // ' | the RtRate: '+ this.state.RtRate);
-   this.apiUrl = "https://yts.ag/api/v2/list_movies.json?"+
-    "limit="+ this.state.limit+
-    "&page="+ this.state.currPage+
-    "&quality="+ this.state.quality+
-    "&minimum_rating="+ this.state.minRate+
-    "&query_term="+ this.state.search+
-    "&genre="+ this.state.genre+
-    "&sort_by="+ this.state.sortType+
-    "&order_by="+ this.state.orderBy+
-    "&with_rt_ratings="+ this.state.RtRate;
-    console.log(this.apiUrl);
+    if (prevState.currPage !== this.state.currPage ||
+      prevState.sortType !== this.state.sortType ||
+      prevState.limit !== this.state.limit ||
+      prevState.orderBy !== this.state.orderBy ||
+      prevState.quality !== this.state.quality ||
+      prevState.minRate !== this.state.minRate ||
+      prevState.search !== this.state.search ||
+      prevState.genre !== this.state.genre ||
+      prevState.RtRate !== this.state.RtRate
+    ) {
+      this.apiUrl = "https://yts.ag/api/v2/list_movies.json?"+
+        "limit="+ this.state.limit+
+        "&page="+ this.state.currPage+
+        "&quality="+ this.state.quality+
+        "&minimum_rating="+ this.state.minRate+
+        "&query_term="+ this.state.search+
+        "&genre="+ this.state.genre+
+        "&sort_by="+ this.state.sortType+
+        "&order_by="+ this.state.orderBy+
+        "&with_rt_ratings="+ this.state.RtRate;
+        this._getMovies();
+        console.log("change url: "+this.apiUrl);
+    }
   }
 
    _getMovies = async () => {
@@ -75,22 +87,31 @@ class App extends Component {
    
   _callApi = ()=>{
     //request api
-    this.setState({
-      apiError: false
-    })
-    return fetch(this.apiUrl)
+    this.apiUrl = "https://yts.ag/api/v2/list_movies.json?"+
+    "limit="+ this.state.limit+
+    "&page="+ this.state.currPage+
+    "&quality="+ this.state.quality+
+    "&minimum_rating="+ this.state.minRate+
+    "&query_term="+ this.state.search+
+    "&genre="+ this.state.genre+
+    "&sort_by="+ this.state.sortType+
+    "&order_by="+ this.state.orderBy+
+    "&with_rt_ratings="+ this.state.RtRate;
+    const movieData =  fetch(this.apiUrl)
     .then(response => response.json())
     .then(json => ({movies: json.data.movies, totalMovies: json.data.movie_count}))
     .catch(
       function(err){
-        this.setState({
-          apiError: true
-        })
         console.log("ERROR:" +err);
-        const json = _getMovieData();
-        return ({movies: json[0].data.movies, totalMovies: json[0].data.movie_count});
       }
     )
+    const json = _getMovieData();
+    if(movieData){
+      this.apiError = false;
+      return movieData;
+    }
+    this.apiError = true;
+    return ({movies: json[0].data.movies, totalMovies: json[0].data.movie_count});
   }
   _renderMovies = () => {
     const movies = this.state.movies.map(movie => {
@@ -109,38 +130,40 @@ class App extends Component {
     this.setState({currPage: page.page})
   }
   _onChangeSortType(sortType) {
-    this.setState({sortType: sortType.target.value})
+    this.setState({currPage: 1, sortType: sortType.target.value})
   }
   _onChangeLimit(limit) {
-    this.setState({limit: limit.target.value})
+    this.setState({currPage: 1, limit: limit.target.value})
   }
   _onChangeOrderBy(orderBy) {
-    this.setState({orderBy: orderBy.target.value})
+    this.setState({currPage: 1, orderBy: orderBy.target.value})
   }
   _onChangeQuality(quality) {
-    this.setState({quality: quality.target.value})
+    this.setState({currPage: 1, quality: quality.target.value})
   }
   _onChangeMinRate(minRate) {
-    this.setState({minRate: minRate.target.value})
+    this.setState({currPage: 1, minRate: minRate.target.value})
   }
   _onChangeSearch(search) {
-    this.setState({search: search.target.value})
+    this.setState({currPage: 1, search: search.target.value})
   }
   _onChangeGenre(genre) {
-    this.setState({genre: genre.target.value})
+    this.setState({currPage: 1, genre: genre.target.value})
   }
   _onChangeRtRate(rtRate) {
-    this.setState({rtRate: rtRate.target.value})
+    this.setState({currPage: 1, rtRate: rtRate.target.value})
   }
+  
   render() {
-    const { movies, totalMovies, currPage, sortType, limit, orderBy, quality, minRate, search, genre, RtRate, apiError} = this.state;
+    const { movies, totalMovies, currPage, sortType, limit, orderBy, quality, minRate, search, genre, RtRate} = this.state;
     return (
       <div className={movies ? "App" : "App--loading"}>
         <Col xs={12}>
-        {apiError? "Error while getting movie data, please try again after few minute" :
+        {this.apiError? "Error while getting movie data, please try again after few minute" :
         <PageBtns totalMovies={totalMovies} currPage={currPage} onclick={this._onChangeCurrPage}/> }
         </Col>
         <Col xs={12} sm={2} md={3}>
+        {this.apiError? "Error while getting movie data, please try again after few minute" :
         <SideBar 
         sortType={sortType} onChangeSortType={this._onChangeSortType}
         limit={limit} onChangeLimit={this._onChangeLimit}
@@ -150,7 +173,7 @@ class App extends Component {
         search={search} onChangeSearch={this._onChangeSearch}
         genre={genre} onChangeGenre={this._onChangeGenre}
         RtRate={RtRate} onChangeRtRate={this._onChangeRtRate}
-        />
+        />}
         </Col>
         <Col xs={12} sm={10} md={9}>
         {!movies ? 'Loading...' : (this._renderMovies()) }
