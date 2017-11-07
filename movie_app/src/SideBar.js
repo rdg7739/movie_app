@@ -1,13 +1,18 @@
 import React from "react";
-import {
-  FormGroup,
-  Radio,
-  ControlLabel,
-  HelpBlock,
-  FormControl
-} from "react-bootstrap";
 import "./Movie.css";
 import PropTypes from "prop-types";
+import {Col} from "react-bootstrap";
+import AutoComplete from 'material-ui/AutoComplete';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
+import TextField from 'material-ui/TextField';
+
+const genres=['Action', 'Adventure', 'Animation', 'Biography', 
+'Comedy', 'Crime', 'Documentary', 'Drama', 'Family', 'Fantasy', 'Film-Noir', 
+'Game-Show', 'History', 'Horror', 'Music', 'Musical', 'Mystery', 
+'News', 'Reality-TV', 'Romance', 'Sci-Fi', 'Sitcom', 'Sport', 
+'Talk-Show', 'Thriller', 'War', 'Western'];
+
 // create classes
 function SideBar({
   sortType, onChangeSortType,
@@ -20,43 +25,35 @@ function SideBar({
   RtRate, onChangeRtRate
 }) {
   return (
-    <div>
-      <SelectSort sortType = {sortType} onChange={onChangeSortType} />
-      <SelectLimit limit = {limit} onChange={onChangeLimit} />
+    <Col xs={12}>
       <SelectOrderBy orderBy = {orderBy} onChange={onChangeOrderBy} />
-      <SelectQuality quality = {quality} onChange={onChangeQuality} />
-      <SelectMinRate minRate = {minRate} onChange={onChangeMinRate} />
+      <SelectSort sortType = {sortType} onChange={onChangeSortType} />
       <SelectSearch search = {search} onChange={onChangeSearch} />
       <SelectGenre genre = {genre} onChange={onChangeGenre} />
-      <SelectRtRating RtRate = {RtRate} onChange={onChangeRtRate} />
-    </div>
+      <SelectLimit limit = {limit} onChange={onChangeLimit} />
+      {/* <SelectQuality quality = {quality} onChange={onChangeQuality} /> */}
+      <SelectMinRate minRate = {minRate} onChange={onChangeMinRate} />
+      {/* <SelectRtRating RtRate = {RtRate} onChange={onChangeRtRate} /> */}
+    </Col>
   );
 }
-function FieldGroup({ id, label, help, ...props }) {
-  return (
-    <FormGroup controlId={id}>
-      <ControlLabel>{label}</ControlLabel>
-      <FormControl {...props} />
-      {help && <HelpBlock>{help}</HelpBlock>}
-    </FormGroup>
-  );
-}
+
 function SelectSort({sortType, onChange}) {
   return (
-    <FormGroup controlId="formControlsSelectSort">
-      <ControlLabel sm={12}>Sort By</ControlLabel>
-      <FormControl onChange={onChange} value={sortType} componentClass="select" placeholder="Select Sort Method">
-        <option value="">Select Sort</option>
-        <option value="title">title</option>
-        <option value="year">year</option>
-        <option value="rating">rating</option>
-        <option value="peers">peers</option>
-        <option value="seeds">seeds</option>
-        <option value="download_count" >download_count</option>
-        <option value="like_count">like_count</option>
-        <option value="date_added">date_added</option>
-      </FormControl>
-    </FormGroup>
+    <SelectField
+      value={sortType}
+      floatingLabelText="Sort By"
+      onChange={onChange}>
+      <MenuItem value="" primaryText="" />
+      <MenuItem value="title" primaryText="title" />
+      <MenuItem value="year" primaryText="year" />
+      <MenuItem value="rating" primaryText="rating" />
+      <MenuItem value="peers" primaryText="peers" />
+      <MenuItem value="seeds" primaryText="seeds" />
+      <MenuItem value="download_count" primaryText="download_count" />
+      <MenuItem value="like_count" primaryText="like_count" />
+      <MenuItem value="date_added" primaryText="date_added" />
+    </SelectField>
   );
 }
 SelectSort.prototype={
@@ -64,19 +61,19 @@ SelectSort.prototype={
   onChange: PropTypes.object.isRequired
 }
 
+var limitList = [];
+for (let j = 1; j < 51; j++ ) {
+  limitList.push(<MenuItem value={j} key={j} primaryText={`${j} items`} />);
+}
 function SelectLimit({limit, onChange}) {
   return (
     //limit		Integer between 1 - 50 (inclusive)	20	The limit of results per page that has been set
-    <FormGroup controlId="formControlsSetLimit">
-      <FieldGroup
-        type="text"
-        label="Display Limit"
-        value={limit}
-        onInput = {onChange}
-        onChange = {onChange}
-        placeholder="Amount of movie to display(1-50)"
-      />
-    </FormGroup>
+    <SelectField
+      floatingLabelText="Number of Movies"
+      value={limit}
+      onChange={onChange}>
+      {limitList}
+    </SelectField>
   );
 }
 SelectLimit.prototype={
@@ -87,17 +84,14 @@ SelectLimit.prototype={
 function SelectOrderBy({orderBy, onChange}) {
   return (
     // order_by		String (desc, asc)	desc	Orders the results by either Ascending or Descending order
-    <FormGroup>
-      <ControlLabel sm={12}>Order By</ControlLabel>
-      <div>
-        <Radio name="setOrderBy" onChange={onChange} value="asc" inline >
-          Ascending
-        </Radio>{" "}
-        <Radio name="setOrderBy" onChange={onChange} value="desc" inline>
-          Descending
-        </Radio>
-      </div>
-    </FormGroup>
+    <SelectField
+      floatingLabelText="Asc or Desc?"
+      value={orderBy}
+      onChange={onChange}>
+      <MenuItem value="" primaryText="" />
+      <MenuItem value="asc"primaryText="Ascending" />
+      <MenuItem value="desc" primaryText="descending" />
+    </SelectField>
   );
 }
 SelectOrderBy.prototype={
@@ -108,44 +102,33 @@ SelectOrderBy.prototype={
 function SelectQuality({quality, onChange}) {
   return (
     // quality		String (720p, 1080p, 3D)	All	Used to filter by a given quality
-    <FormGroup >
-      <ControlLabel sm={12}>Video Quality</ControlLabel>
-      <div>
-        <Radio name="setQuality" onChange={onChange} value="720p" inline >
-          720 pixel
-        </Radio>{" "}
-        <Radio name="setQuality" onChange={onChange} value="1080p" inline>
-          1080 pixel
-        </Radio>{" "}
-        <Radio name="setQuality" onChange={onChange} value="3D" inline>
-          3D
-        </Radio>
-      </div>
-    </FormGroup>
+    <SelectField
+      floatingLabelText="Video Quality"
+      value={quality}
+      onChange={onChange}>
+      <MenuItem value="" primaryText="" />
+      <MenuItem value="720p"primaryText="720 pixel" />
+      <MenuItem value="1080p" primaryText="1080 pixel" />
+      <MenuItem value="3D" primaryText="3D" />
+    </SelectField>
   );
 }
 SelectQuality.prototype={
   sortType: PropTypes.string.isRequired,
   onChange: PropTypes.object.isRequired
 }
+var minRateList = [];
+for (let j = 1; j < 6; j++ ) {
+  minRateList.push(<MenuItem value={j*2} key={j} primaryText={`${j}`} />);
+}
 function SelectMinRate({minRate, onChange}) {
   return (
-    // minimum_rating		Integer between 0 - 9 (inclusive)	0	Used to filter movie by a given minimum IMDb rating
-    <FormGroup controlId="formControlsSetMinRate">
-      <ControlLabel sm={1}>Minimum IMDb Rating</ControlLabel>
-      <FormControl componentClass="select" onChange = {onChange} placeholder="Select Min Rate" sm={2}>
-        <option value="0">0</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-      </FormControl>
-    </FormGroup>
+    <SelectField
+      floatingLabelText="Select Min Rating"
+      value={minRate}
+      onChange={onChange}>
+      {minRateList}
+    </SelectField>
   );
 }
 SelectMinRate.prototype={
@@ -156,13 +139,10 @@ SelectMinRate.prototype={
 function SelectSearch({search, onChange}) {
   return (
     // query_term		String	0	Used for movie search, matching on: Movie Title/IMDb Code, Actor Name/IMDb Code, Director Name/IMDb Code
-    <FieldGroup
-      id="formControlsSearch"
-      type="text"
-      label="Search"
+    <TextField
+      hintText="Titanic..."
+      floatingLabelText="Title Search"
       onChange = {onChange}
-      onInput = {onChange}
-      placeholder="Enter text"
     />
   );
 }
@@ -173,13 +153,13 @@ SelectSearch.prototype={
 function SelectGenre({genre, onChange}) {
   return (
     // genre		String	All	Used to filter by a given genre (See http://www.imdb.com/genre/ for full list)
-    <FieldGroup
-      id="formControlsGenre"
-      type="text"
-      label="Genre"
-    onChange = {onChange}
-      onInput = {onChange}
-      placeholder="Enter Genre"
+    <AutoComplete
+      floatingLabelText="Search by genre"
+      filter={AutoComplete.fuzzyFilter}
+      searchText={genre}
+      openOnFocus={true}
+      dataSource={genres}
+      onNewRequest = {onChange}
     />
   );
 }
@@ -190,17 +170,14 @@ SelectGenre.prototype={
 function SelectRtRating({rtRating, onChange}) {
   return (
     // with_rt_ratings		Boolean     false	Returns the list with the Rotten Tomatoes rating included
-    <FormGroup>
-      <ControlLabel sm={12}>Rotten Tomato Rating</ControlLabel>
-      <div sm={12}>
-        <Radio name="getRtRate" onChange = {onChange} value="true" inline >
-          Yes
-        </Radio>{" "}
-        <Radio name="getRtRate" onChange = {onChange} value="false" inline>
-          No
-        </Radio>
-      </div>
-    </FormGroup>
+    <SelectField
+      floatingLabelText="Rotten Tomato Rating?"
+      value={rtRating}
+      onChange={onChange}>
+      <MenuItem value="" primaryText="" />
+      <MenuItem value="true" primaryText="Yes" />
+      <MenuItem value="false" primaryText="No" />
+    </SelectField>
   );
 }
 SelectRtRating.prototype={
@@ -219,7 +196,7 @@ SideBar.propTyps={
    onChangeOrderBy: PropTypes.object.isRequired,
   quality: PropTypes.string.isRequired,
    onChangeQuality: PropTypes.object.isRequired,
-  minRate: PropTypes.string.isRequired,
+  minRate: PropTypes.number.isRequired,
    onChangeMinRate: PropTypes.object.isRequired,
   search: PropTypes.string.isRequired,
    onChangeSearch: PropTypes.object.isRequired,

@@ -1,5 +1,13 @@
-.App > div:not(.sideBar){
-  padding:50px 20px;
+.App > div{
+  padding:40px 20px;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+pageBtns{
+  padding: 20px;
+  padding-bottom: 40px;
   display: flex;
   justify-content: space-around;
   flex-wrap: wrap;
@@ -16,4 +24,24 @@
   justify-content: center;
   align-items: center;
   height: 100%;
+}
+
+.drawer{
+  padding: 0 !important;
+}
+
+.floatingBtn {
+  position: fixed !important;
+  top: 50px;
+  right: 50px;
+  z-index: 10;
+  padding: 0 !important;
+  height: 56px;
+}
+@media (max-width: 454px){
+  .floatingBtn {
+    bottom: 10px;
+    right: 10px;
+    top: auto;
+  }
 }

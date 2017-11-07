@@ -3,25 +3,31 @@ import './App.css';
 import Movie from './Movie';
 import SideBar from './SideBar';
 import PageBtns from './PageBtns';
-import { Col} from "react-bootstrap";
+import {Col} from "react-bootstrap";
+import CircularProgress from 'material-ui/CircularProgress';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import Drawer from 'material-ui/Drawer';
+import FloatingActionButton from 'material-ui/FloatingActionButton';
 class App extends Component {
   apiUrl= "https://yts.ag/api/v2/list_movies.json";
   apiError= false;
-  
+  movieData = null;
+  timeout = null;
   constructor(props){
     super(props);
     this.state= {
       movies: null,
       totalMovies: null,
-      currPage: 1,
+      currPage: "",
       sortType: "download_count",
-      limit: 20,
-      orderBy: "asc",
+      limit: "20",
+      orderBy: "",
       quality: "",
-      minRate: "0",
+      minRate: "",
       search: "",
       genre: "",
-      RtRate: "false"
+      RtRate: "",
+      open: false
     };
     this._onChangeCurrPage = this._onChangeCurrPage.bind(this);
     this._onChangeSortType = this._onChangeSortType.bind(this);
@@ -31,25 +37,15 @@ class App extends Component {
     this._onChangeMinRate = this._onChangeMinRate.bind(this);
     this._onChangeSearch = this._onChangeSearch.bind(this);
     this._onChangeGenre = this._onChangeGenre.bind(this);
+    this._onClickGenre = this._onClickGenre.bind(this);
     this._onChangeRtRate = this._onChangeRtRate.bind(this);
   }
   //render: componentWillMount -> render -> componentDidMount
   //update: componentWillReceiveProps() -> shouldComponentUpdate() -> componentWillUpdate(open loading modal) -> render() -> componentDidUpdate(hide loading modap)
-  componentDidMount(){
+  componentDidMount= () => {
     this._getMovies();
-    
   }
   componentDidUpdate(prevProps, prevState){
-    // console.log('the totalMovies: '+ this.state.totalMovies+
-    // ' | the currPage: '+ this.state.currPage+
-    // ' | the sortType: '+ this.state.sortType+
-    // ' | the limit: '+ this.state.limit+
-    // ' | the orderBy: '+ this.state.orderBy+
-    // ' | the quality: '+ this.state.quality+
-    // ' | the minRate: '+ this.state.minRate+
-    // ' | the search: '+ this.state.search+
-    // ' | the genre: '+ this.state.genre+
-    // ' | the RtRate: '+ this.state.RtRate);
     if (prevState.currPage !== this.state.currPage ||
       prevState.sortType !== this.state.sortType ||
       prevState.limit !== this.state.limit ||
@@ -60,125 +56,162 @@ class App extends Component {
       prevState.genre !== this.state.genre ||
       prevState.RtRate !== this.state.RtRate
     ) {
-      this.apiUrl = "https://yts.ag/api/v2/list_movies.json?"+
-        "limit="+ this.state.limit+
-        "&page="+ this.state.currPage+
-        "&quality="+ this.state.quality+
-        "&minimum_rating="+ this.state.minRate+
-        "&query_term="+ this.state.search+
-        "&genre="+ this.state.genre+
-        "&sort_by="+ this.state.sortType+
-        "&order_by="+ this.state.orderBy+
-        "&with_rt_ratings="+ this.state.RtRate;
-        this._getMovies();
-        console.log("change url: "+this.apiUrl);
+      clearTimeout(this.timeout);
+      const _self= this;
+      this.timeout = setTimeout(function(_self){_self._setApiUrl()}, 500, _self);
     }
+  }
+  _handleToggle = () => this.setState({open: !this.state.open});
+  _handleClose = () => this.setState({open: false});
+
+  _setApiUrl(){
+    this.apiUrl = "https://yts.ag/api/v2/list_movies.json?";
+    if(this.state.limit !==""){this.apiUrl+= `limit=${this.state.limit}`}
+    if(this.state.currPage !==""){this.apiUrl+= `&page=${this.state.currPage}`}
+    if(this.state.quality !==""){this.apiUrl+= `&quality=${this.state.quality}`}
+    if(this.state.minRate !==""){this.apiUrl+= `&minimum_rating=${this.state.minRate}`}
+    if(this.state.search !==""){this.apiUrl+= `&query_term=${this.state.search}`}
+    if(this.state.genre !==""){this.apiUrl+= `&genre=${this.state.genre}`}
+    if(this.state.sortType !==""){this.apiUrl+= `&sort_by=${this.state.sortType}`}
+    if(this.state.orderBy !==""){this.apiUrl+= `&order_by=${this.state.orderBy}`}
+    if(this.state.RtRate !==""){this.apiUrl+= `&with_rt_ratings=${this.state.RtRate}`}
+    this._getMovies();
+    console.log("change url: "+this.apiUrl);
   }
 
    _getMovies = async () => {
-    const movieData = await this._callApi()
-    if(movieData !== undefined){
+    this.movieData = await this._callApi()
+    if(this.movieData==="error"){
+      this.movieData = this._getStaticMovieData();
+    }
+    if(this.movieData !== undefined){
       this.setState({
-        movies: movieData.movies,
-        totalMovies: movieData.totalMovies
+        movies: this.movieData.movies,
+        totalMovies: this.movieData.totalMovies
       })
     }
   }
-   
+  _getStaticMovieData = ()=>{
+    const json = _getMovieData();
+    this.apiError = true;
+    return ({movies: json[0].data.movies, totalMovies: json[0].data.movie_count});
+  }
   _callApi = ()=>{
     //request api
-    this.apiUrl = "https://yts.ag/api/v2/list_movies.json?"+
-    "limit="+ this.state.limit+
-    "&page="+ this.state.currPage+
-    "&quality="+ this.state.quality+
-    "&minimum_rating="+ this.state.minRate+
-    "&query_term="+ this.state.search+
-    "&genre="+ this.state.genre+
-    "&sort_by="+ this.state.sortType+
-    "&order_by="+ this.state.orderBy+
-    "&with_rt_ratings="+ this.state.RtRate;
-    const movieData =  fetch(this.apiUrl)
+    return fetch(this.apiUrl)
+    .then(this._handleErrors)
     .then(response => response.json())
     .then(json => ({movies: json.data.movies, totalMovies: json.data.movie_count}))
     .catch(
       function(err){
-        console.log("ERROR:" +err);
+        "error"
       }
     )
-    const json = _getMovieData();
-    if(movieData){
-      this.apiError = false;
-      return movieData;
+  }
+  _handleErrors= (response) =>{
+    if (!response.ok) {
+        throw Error(response.statusText);
     }
-    this.apiError = true;
-    return ({movies: json[0].data.movies, totalMovies: json[0].data.movie_count});
+    return response;
   }
   _renderMovies = () => {
     const movies = this.state.movies.map(movie => {
       return <Movie 
         title={movie.title_english} 
-        src={movie.medium_cover_image} 
+        src={(window.innerHeight > 454) ? movie.medium_cover_image : movie.small_cover_image}
         key={movie.id} 
+        onClickGenre={this._onClickGenre}
         genres={movie.genres}
         synopsis={movie.synopsis}
+        ytsUrl={movie.url}
+        year={movie.year}
+        rating={movie.rating}
+        language={movie.language}
+        mpa_rating={movie.mpa_rating}
       />
     })
     return movies
   }
+  
 
   _onChangeCurrPage(page) {
     this.setState({currPage: page.page})
   }
-  _onChangeSortType(sortType) {
-    this.setState({currPage: 1, sortType: sortType.target.value})
+  _onChangeSortType(e, key, sortType) {
+    this.setState({currPage: 1, sortType: sortType})
   }
-  _onChangeLimit(limit) {
-    this.setState({currPage: 1, limit: limit.target.value})
+  _onChangeLimit(e, key, limit) {
+    this.setState({currPage: 1, limit: limit})
   }
-  _onChangeOrderBy(orderBy) {
-    this.setState({currPage: 1, orderBy: orderBy.target.value})
+  _onChangeOrderBy(e, key, orderBy) {
+    this.setState({currPage: 1, orderBy: orderBy})
   }
-  _onChangeQuality(quality) {
-    this.setState({currPage: 1, quality: quality.target.value})
+  _onChangeQuality(e, key, quality) {
+    this.setState({currPage: 1, quality: quality})
   }
-  _onChangeMinRate(minRate) {
-    this.setState({currPage: 1, minRate: minRate.target.value})
+  _onChangeMinRate(e, key, minRate) {
+    this.setState({currPage: 1, minRate: minRate})
   }
   _onChangeSearch(search) {
     this.setState({currPage: 1, search: search.target.value})
   }
   _onChangeGenre(genre) {
-    this.setState({currPage: 1, genre: genre.target.value})
+    this.setState({currPage: 1, genre: genre})
   }
-  _onChangeRtRate(rtRate) {
-    this.setState({currPage: 1, rtRate: rtRate.target.value})
+  _onClickGenre(genre) {
+    this.setState({currPage: 1, genre: genre.genre})
   }
-  
+  _onChangeRtRate(e, key, rtRate) {
+    this.setState({currPage: 1, RtRate: rtRate})
+  }
   render() {
+    const style = {
+      height: 56,
+    };
+    
     const { movies, totalMovies, currPage, sortType, limit, orderBy, quality, minRate, search, genre, RtRate} = this.state;
     return (
-      <div className={movies ? "App" : "App--loading"}>
-        <Col xs={12}>
-        {this.apiError? "Error while getting movie data, please try again after few minute" :
-        <PageBtns totalMovies={totalMovies} currPage={currPage} onclick={this._onChangeCurrPage}/> }
-        </Col>
-        <Col xs={12} sm={2} md={3}>
-        {this.apiError? "Error while getting movie data, please try again after few minute" :
-        <SideBar 
-        sortType={sortType} onChangeSortType={this._onChangeSortType}
-        limit={limit} onChangeLimit={this._onChangeLimit}
-        orderBy={orderBy} onChangeOrderBy={this._onChangeOrderBy}
-        quality={quality} onChangeQuality={this._onChangeQuality}
-        minRate={minRate} onChangeMinRate={this._onChangeMinRate}
-        search={search} onChangeSearch={this._onChangeSearch}
-        genre={genre} onChangeGenre={this._onChangeGenre}
-        RtRate={RtRate} onChangeRtRate={this._onChangeRtRate}
-        />}
-        </Col>
-        <Col xs={12} sm={10} md={9}>
-        {!movies ? 'Loading...' : (this._renderMovies()) }
-        </Col>
-      </div>
+      <MuiThemeProvider>
+        <div className={movies ? "App" : "App--loading"}>
+          <FloatingActionButton 
+            style={style}
+            className="floatingBtn"
+            onClick={this._handleToggle}>
+            <i className="material-icons">menu</i>
+          </FloatingActionButton>
+          <Drawer
+            className="drawer"
+            docked={false}
+            open={this.state.open}
+            onRequestChange={(open) => this.setState({open})}>
+            {this.apiError? "Error while getting movie data, please try again after few minute" :
+              <SideBar
+              sortType={sortType} onChangeSortType={this._onChangeSortType}
+              limit={limit} onChangeLimit={this._onChangeLimit}
+              orderBy={orderBy} onChangeOrderBy={this._onChangeOrderBy}
+              quality={quality} onChangeQuality={this._onChangeQuality}
+              minRate={minRate} onChangeMinRate={this._onChangeMinRate}
+              search={search} onChangeSearch={this._onChangeSearch}
+              genre={genre} onChangeGenre={this._onChangeGenre}
+              RtRate={RtRate} onChangeRtRate={this._onChangeRtRate}
+              />
+            }
+          </Drawer>
+          <Col xs={12}>
+            {!movies ? 
+            <div style={{paddingTop:175}}>
+              <h4>Loading Movies..</h4>
+              <br/>
+              <CircularProgress size={80} thickness={5} style={{display: "block", margin:"auto"}}/>
+            </div>
+            : (this._renderMovies()) }
+          </Col>
+          <Col xs={12} componentClass="pageBtns">
+            {this.apiError? "Error while getting movie data, please try again after few minute" :
+            <PageBtns totalMovies={Math.ceil(totalMovies/limit)} currPage={currPage} onclick={this._onChangeCurrPage}/> }
+          </Col>
+        </div>
+      </MuiThemeProvider>
     );
   }
 
