@@ -1,4 +1,5 @@
 # PROJECT React Movie app
+This application getting movie information from https://yts.ag/api 
 
 ## Requirements
 
