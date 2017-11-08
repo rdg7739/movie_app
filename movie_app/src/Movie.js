@@ -65,7 +65,6 @@ class Movie extends React.Component {
               name="Rate"
               value={this.props.rating/2} 
               editing={false}
-            renderStarIconHalf={() => <span className="fa fa-star-half-full" />}
           />
           </div>
           <div className="Movie_Genres" style={{marginBottom:0}}>
