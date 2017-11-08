@@ -29,21 +29,21 @@ class App extends Component {
       RtRate: "",
       open: false
     };
-    this._onChangeCurrPage = this._onChangeCurrPage.bind(this);
-    this._onChangeSortType = this._onChangeSortType.bind(this);
-    this._onChangeLimit = this._onChangeLimit.bind(this);
-    this._onChangeOrderBy = this._onChangeOrderBy.bind(this);
-    this._onChangeQuality = this._onChangeQuality.bind(this);
-    this._onChangeMinRate = this._onChangeMinRate.bind(this);
-    this._onChangeSearch = this._onChangeSearch.bind(this);
-    this._onChangeGenre = this._onChangeGenre.bind(this);
-    this._onClickGenre = this._onClickGenre.bind(this);
-    this._onChangeRtRate = this._onChangeRtRate.bind(this);
+    this._onChangeCurrPage = this._onChangeCurrPage.bind(this)
+    this._onChangeSortType = this._onChangeSortType.bind(this)
+    this._onChangeLimit = this._onChangeLimit.bind(this)
+    this._onChangeOrderBy = this._onChangeOrderBy.bind(this)
+    this._onChangeQuality = this._onChangeQuality.bind(this)
+    this._onChangeMinRate = this._onChangeMinRate.bind(this)
+    this._onChangeSearch = this._onChangeSearch.bind(this)
+    this._onChangeGenre = this._onChangeGenre.bind(this)
+    this._onClickGenre = this._onClickGenre.bind(this)
+    this._onChangeRtRate = this._onChangeRtRate.bind(this)
   }
   //render: componentWillMount -> render -> componentDidMount
   //update: componentWillReceiveProps() -> shouldComponentUpdate() -> componentWillUpdate(open loading modal) -> render() -> componentDidUpdate(hide loading modap)
   componentDidMount= () => {
-    this._getMovies();
+    this._getMovies()
   }
   componentDidUpdate(prevProps, prevState){
     if (prevState.currPage !== this.state.currPage ||
@@ -56,16 +56,17 @@ class App extends Component {
       prevState.genre !== this.state.genre ||
       prevState.RtRate !== this.state.RtRate
     ) {
-      clearTimeout(this.timeout);
-      const _self= this;
-      this.timeout = setTimeout(function(_self){_self._setApiUrl()}, 500, _self);
+      clearTimeout(this.timeout)
+      const _self= this
+      this.timeout = setTimeout(function(_self){_self._setApiUrl()}, 300, _self)
     }
   }
-  _handleToggle = () => this.setState({open: !this.state.open});
-  _handleClose = () => this.setState({open: false});
+  _handleToggle = () => this.setState({open: !this.state.open})
+  _handleClose = () => this.setState({open: false})
+
 
   _setApiUrl(){
-    this.apiUrl = "https://yts.ag/api/v2/list_movies.json?";
+    this.apiUrl = "https://yts.ag/api/v2/list_movies.json?"
     if(this.state.limit !==""){this.apiUrl+= `limit=${this.state.limit}`}
     if(this.state.currPage !==""){this.apiUrl+= `&page=${this.state.currPage}`}
     if(this.state.quality !==""){this.apiUrl+= `&quality=${this.state.quality}`}
@@ -76,11 +77,16 @@ class App extends Component {
     if(this.state.orderBy !==""){this.apiUrl+= `&order_by=${this.state.orderBy}`}
     if(this.state.RtRate !==""){this.apiUrl+= `&with_rt_ratings=${this.state.RtRate}`}
     this._getMovies();
-    console.log("change url: "+this.apiUrl);
+    console.log("change url: "+this.apiUrl)
   }
 
    _getMovies = async () => {
     this.movieData = await this._callApi()
+    window.scroll({
+      top: 0, 
+      left: 0, 
+      behavior: 'smooth' 
+    })
     if(this.movieData==="error"){
       this.movieData = this._getStaticMovieData();
     }
@@ -92,9 +98,9 @@ class App extends Component {
     }
   }
   _getStaticMovieData = ()=>{
-    const json = _getMovieData();
-    this.apiError = true;
-    return ({movies: json[0].data.movies, totalMovies: json[0].data.movie_count});
+    const json = _getMovieData()
+    this.apiError = true
+    return ({movies: json[0].data.movies, totalMovies: json[0].data.movie_count})
   }
   _callApi = ()=>{
     //request api
@@ -110,9 +116,9 @@ class App extends Component {
   }
   _handleErrors= (response) =>{
     if (!response.ok) {
-        throw Error(response.statusText);
+        throw Error(response.statusText)
     }
-    return response;
+    return response
   }
   _renderMovies = () => {
     const movies = this.state.movies.map(movie => {
@@ -169,7 +175,7 @@ class App extends Component {
       height: 56,
     };
     
-    const { movies, totalMovies, currPage, sortType, limit, orderBy, quality, minRate, search, genre, RtRate} = this.state;
+    const { movies, totalMovies, currPage, sortType, limit, orderBy, quality, minRate, search, genre, RtRate} = this.state
     return (
       <MuiThemeProvider>
         <div className={movies ? "App" : "App--loading"}>
@@ -212,7 +218,7 @@ class App extends Component {
           </Col>
         </div>
       </MuiThemeProvider>
-    );
+    )
   }
 
 }

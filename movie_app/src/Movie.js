@@ -11,10 +11,8 @@ class Movie extends React.Component {
     super(props);
     this.state = {
       maxLine: 3,
-      useEllipsis: true,
       open: false
     };
-    this._onTextClick = this._onTextClick.bind(this);
   }
 
   _handleOpen = () => {
@@ -24,11 +22,6 @@ class Movie extends React.Component {
   _handleClose = () => {
     this.setState({open: false});
   };
-
-  _onTextClick(e) {
-    const prevState = this.state.useEllipsis;
-    this.setState({ useEllipsis: !prevState });
-  }
 
   render() {
     const title = `${this.props.title} (${this.props.year})`;
@@ -52,17 +45,13 @@ class Movie extends React.Component {
               <MovieGenre onclick={this.props.onClickGenre} key={index} genre={genre} />
             ))}
           </div>
-          <div onClick={this._onTextClick} className="Movie_Synopsis">
-            {this.state.useEllipsis ? (
-              <LinesEllipsis
-                text={this.props.synopsis}
-                maxLine={this.state.maxLine}
-                ellipsis="<Read More>"
-                trimRight
-                basedOn="letters"
-              />
-            ) : <div>{this.props.synopsis} </div>}
-          </div>
+          <LinesEllipsis
+            text={this.props.synopsis}
+            maxLine={this.state.maxLine}
+            ellipsis="<Read More>"
+            trimRight
+            basedOn="letters"
+          />
         </div>
         <Dialog
           title={title}
