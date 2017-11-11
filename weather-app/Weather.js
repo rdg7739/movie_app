@@ -5,56 +5,61 @@ import {MaterialCommunityIcons} from '@expo/vector-icons';
 import PropTypes from 'prop-types';
 
 const weatherCases = {
-    Rain:{
+    "rain":{
         colors: ["#00C6FB", "#005BEA"],
-        title: "Raining",
-        subtitle: "For more info look outside",
-        icon: 'weather-rainy'
+        icon: 'weather-pouring'
     },
-    Clear:{
+    "clear-day":{
         colors: ["#FEF253", "#FF7300"],
-        title: "Sunny",
-        subtitle: "Go out and play",
-        icon: 'weather-sunny'
+        icon: 'white-balance-sunny'
     },
-    Thunderstorm:{
+    "clear-night":{
+        colors: ["#002f87", "#001030"],
+        icon: 'weather-night'
+    },
+    "thunderstorm":{
         colors: ["#00ECBC", "#007ADF"],
-        title: "Thunderstom in the house",
-        subtitle: "Actually, outside of the house",
-        icon: 'weather-lightning'
+        icon: 'weather-lightning-rainy'
     },
-    Clouds:{
+    "cloudy":{
         colors: ["#D7D2CC", "#304352"],
-        title: "Clouds",
-        subtitle: "I hate gloomy...",
         icon: 'weather-cloudy'
     },
-    Snow:{
+    "partly-cloudy-day":{
+        colors: ["#D7D2CC", "#304352"],
+        icon: 'weather-partlycloudy'
+    },
+    "partly-cloudy-night":{
+        colors: ["#D7D2CC", "#304352"],
+        icon: 'weather-partlycloudy'
+    },
+    "snow":{
         colors: ["#7DE2FC", "#B9B6E5"],
-        title: "Snow",
-        subtitle: "Do you want to build a snowman?",
         icon: 'weather-snowy'
     },
-    Drizzle:{
+    "sleet":{ //도깨비눈
+        colors: ["#7DE2FC", "#B9B6E5"],
+        icon: 'weather-snowy-rainy'
+    },
+    "hail":{
         colors: ["#89F7FE", "#66A6FF"],
-        title: "Drizzle",
-        subtitle: "It's like rain but not funny",
         icon: 'weather-hail'
     },
-    Haze:{
+    "wind":{
         colors: ["#89F7FE", "#66A6FF"],
-        title: "Haze",
-        subtitle: "It's like rain but not funny",
         icon: 'weather-windy'
     },
-    Mist:{
+    "fog":{
         colors: ["#89F7FE", "#66A6FF"],
-        title: "Mist",
-        subtitle: "It's like you have no glasses",
         icon: 'weather-fog'
+    },
+    "tornado":{
+        colors: ["#89F7FE", "#66A6FF"],
+        icon: 'weather-lightning'
     }
 }
-export default function Weather({weatherName, temp}){
+
+export default function Weather({weatherName, title, temp, minSummary}){
     return (
     <LinearGradient 
     colors = {weatherCases[weatherName].colors}
@@ -66,12 +71,11 @@ export default function Weather({weatherName, temp}){
             <Text style={styles.temp}>{temp}˚</Text>
         </View>
         <View style={styles.lower}>
-            <Text style={styles.title}>{weatherCases[weatherName].title}</Text>
-            <Text style={styles.subtitle}>{weatherCases[weatherName].subtitle}</Text>
+            <Text style={styles.title}>{title}</Text>
+            <Text style={styles.subtitle}>{minSummary}</Text>
         </View>
     </LinearGradient>)
 }
-
 Weather.propTypes = {
     temp: PropTypes.number.isRequired,
     weatherName: PropTypes.string.isRequired

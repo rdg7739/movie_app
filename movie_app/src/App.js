@@ -102,7 +102,7 @@ class App extends Component {
     this.apiError = true
     return ({movies: json[0].data.movies, totalMovies: json[0].data.movie_count})
   }
-  _callApi = ()=>{
+  _callApi = async ()=>{
     //request api
     return fetch(this.apiUrl)
     .then(this._handleErrors)
@@ -170,52 +170,52 @@ class App extends Component {
   _onChangeRtRate(e, key, rtRate) {
     this.setState({currPage: 1, RtRate: rtRate})
   }
+  
   render() {
-    const style = {
-      height: 56,
-    };
-    
     const { movies, totalMovies, currPage, sortType, limit, orderBy, quality, minRate, search, genre, RtRate} = this.state
     return (
       <MuiThemeProvider>
-        <div className={movies ? "App" : "App--loading"}>
-          <FloatingActionButton 
-            style={style}
-            className="floatingBtn"
-            onClick={this._handleToggle}>
-            <i className="material-icons">menu</i>
-          </FloatingActionButton>
-          <Drawer
-            className="drawer"
-            docked={false}
-            open={this.state.open}
-            onRequestChange={(open) => this.setState({open})}>
-            {this.apiError? "Error while getting movie data, please try again after few minute" :
-              <SideBar
-              sortType={sortType} onChangeSortType={this._onChangeSortType}
-              limit={limit} onChangeLimit={this._onChangeLimit}
-              orderBy={orderBy} onChangeOrderBy={this._onChangeOrderBy}
-              quality={quality} onChangeQuality={this._onChangeQuality}
-              minRate={minRate} onChangeMinRate={this._onChangeMinRate}
-              search={search} onChangeSearch={this._onChangeSearch}
-              genre={genre} onChangeGenre={this._onChangeGenre}
-              RtRate={RtRate} onChangeRtRate={this._onChangeRtRate}
-              />
-            }
-          </Drawer>
-          <Col xs={12}>
-            {!movies ? 
-            <div style={{paddingTop:175}}>
-              <h4>Loading Movies..</h4>
-              <br/>
-              <CircularProgress size={80} thickness={5} style={{display: "block", margin:"auto"}}/>
-            </div>
-            : (this._renderMovies()) }
-          </Col>
-          <Col xs={12} componentClass="pageBtns">
-            {this.apiError? "Error while getting movie data, please try again after few minute" :
-            <PageBtns totalMovies={Math.ceil(totalMovies/limit)} currPage={currPage} onclick={this._onChangeCurrPage}/> }
-          </Col>
+        <div>
+          <center><h1>Movie App</h1></center>
+          <div className={movies ? "App" : "App--loading"}>
+            <FloatingActionButton 
+              style={{height: 56}}
+              className="floatingBtn"
+              onClick={this._handleToggle}>
+              <i className="material-icons">menu</i>
+            </FloatingActionButton>
+            <Drawer
+              className="drawer"
+              docked={false}
+              open={this.state.open}
+              onRequestChange={(open) => this.setState({open})}>
+              {this.apiError? "Error while getting movie data, please try again after few minute" :
+                <SideBar
+                sortType={sortType} onChangeSortType={this._onChangeSortType}
+                limit={limit} onChangeLimit={this._onChangeLimit}
+                orderBy={orderBy} onChangeOrderBy={this._onChangeOrderBy}
+                quality={quality} onChangeQuality={this._onChangeQuality}
+                minRate={minRate} onChangeMinRate={this._onChangeMinRate}
+                search={search} onChangeSearch={this._onChangeSearch}
+                genre={genre} onChangeGenre={this._onChangeGenre}
+                RtRate={RtRate} onChangeRtRate={this._onChangeRtRate}
+                />
+              }
+            </Drawer>
+            <Col xs={12}>
+              {!movies ? 
+              <div style={{paddingTop:175}}>
+                <h4>Loading Movies..</h4>
+                <br/>
+                <CircularProgress size={80} thickness={5} style={{display: "block", margin:"auto"}}/>
+              </div>
+              : (this._renderMovies()) }
+            </Col>
+            <Col xs={12} componentClass="pageBtns">
+              {this.apiError? "Error while getting movie data, please try again after few minute" :
+              <PageBtns totalMovies={Math.ceil(totalMovies/limit)} currPage={currPage} onclick={this._onChangeCurrPage}/> }
+            </Col>
+          </div>
         </div>
       </MuiThemeProvider>
     )

@@ -15,7 +15,7 @@
   .Movie_Column { width: 100% !important; }
   .Movie_Column h1 { font-size: 12px; font-weight: 500; }
   .Movie_Column:last-child { padding-top: 12px; padding-bottom: 0; width: 60%; }
-  .Movie_Column .Movie_Synopsis, .Movie_Column .Movie_Genres { display: none !important; }
+  .Movie_Column .Movie_Synopsis, .Movie_Column .Movie_Genres, .Movie_Column .LinesEllipsis { display: none !important; }
   .dv-star-rating label { margin-bottom: -10px !important; } }
 
 /*# sourceMappingURL=Movie.css.map */

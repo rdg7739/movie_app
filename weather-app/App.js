@@ -3,14 +3,17 @@ import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
 import Weather from './Weather';
 
 
-const API_KEY = "0c0e487fb06ad513eced1bee0a685378";
+//const API_KEY = "1cea5c7ae03a70263d1904f0124e71dc";
+const API_KEY = "0123456789abcdef9876543210fedcba";
 
 export default class App extends React.Component {
   state = {
     isLoaded: false,
     error: null,
     temperature: null,
-    name: null
+    name: null,
+    title: null,
+    minSummary: null
   }
 
   componentDidMount(){
@@ -28,31 +31,40 @@ export default class App extends React.Component {
 
 
   _getWeather=(lat, lon)=>{
-    const url = 'http://api.openweathermap.org/data/2.5/weather?lat='+lat+'&lon='+lon+'&APPID='+API_KEY;
+    const url = 'https://api.darksky.net/forecast/'+API_KEY+'/'+lat+','+lon;
     fetch(url)
     .then(response => response.json())
     .then(json=>{
       this.setState({
         isLoaded: true,
-        temperature: json.main.temp,
-        name: json.weather[0].main
+        temperature: json.currently.temperature,
+        name: json.currently.icon,
+        title: json.currently.summary,
+        minSummary: json.minutely.summary
       });
     });
   }
 
-  // Clear
-  // Thunderstorm
-  // Clouds
-  // Snow
-  // Drizzle
-  // Haze
-  // Mist
+  // "rain"
+  // "clear-day"
+  // "clear-night"
+  // "thunderstorm"
+  // "cloudy"
+  // "partly-cloudy-day"
+  // "partly-cloudy-night"
+  // "snow"
+  // "sleet"
+  // "hail"
+  // "wind"
+  // "fog"
+  // "tornado"
   render() {
-    const {isLoaded, error, temperature, name} = this.state;
+    const {isLoaded, error, temperature, name, title, minSummary} = this.state;
     return (
       <View style={styles.container}>
         {isLoaded ? (
-        <Weather weatherName="Thunderstorm" temp={Math.ceil(temperature - 273.15)}/>
+         <Weather weatherName="clear-day" title={title} temp={11} minSummary="11"/>
+        // <Weather weatherName={name} title={title} temp={temperature} minSummary={minSummary}/>
       ) : (
         <View style={styles.loading}>
           <Text style={styles.loadingText}>Getting Current Weather</Text>
